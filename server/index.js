@@ -11,21 +11,29 @@ const io = new Server(server, {
 
 app.port = 3000
 
+let connectedUsers = []
+
 io.on('connection', (socket) => {
-    socket.on('joined', (username) => {
-        io.emit('joined', `${username} Joined The Chat`);
+
+    socket.on('message', (data) => {
+        if(data.type === 'notify'){
+            connectedUsers[data.id] = data.username
+        }
+
+        io.emit('message', data);
     });
 
-    socket.on('typing', (msg) => {
-        io.emit('typing', msg);
-    });
-
-    socket.on('message', (msg) => {
-        io.emit('message', msg);
-    });
+    // socket.on('typing', (msg) => {
+    //     io.emit('typing', msg);
+    // });
 
     socket.on('disconnect', () => {
-        console.log('User Leave The Chat');
+        io.emit('message', {
+            type: 'notify',
+            username: connectedUsers[socket.id] ?? "Someone",
+            id: socket.id,
+            message: `${connectedUsers[socket.id] ?? "Someone"} Left The Chat`
+        })
     });
 });
 

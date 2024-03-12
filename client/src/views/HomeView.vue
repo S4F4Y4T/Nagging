@@ -2,21 +2,14 @@
   import Header from '@/components/Header.vue'
   import MessageAction from '@/components/MessageAction.vue'
   import MessageHistory from '@/components/MessageHistory.vue'
-  import { onMounted, ref } from 'vue'
-  import {state, socket} from '@/services/socket.js'
+  import { onMounted } from 'vue'
+  import {state} from '@/services/socket.js'
 
   onMounted(() => {
-    state.username = prompt('Give username');
-    socket.emit('joined', `${state.username}`);
+    do{
+      state.username = prompt('Give your username')
 
-    socket.on('joined', (message) => {
-      state.messages.push({
-        'type': 'joined',
-        'message': message
-      })
-
-      console.log(state.messages[0].message)
-    });
+    }while (state.username === null || state.username === '')
 
   })
 </script>
