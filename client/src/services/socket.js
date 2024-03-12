@@ -20,14 +20,28 @@ socket.on('connect', () => {
     id: state.id,
     message: `${state.username} Joined The Chat`
   })
-});
+})
 
 socket.on('message', (messageData) => {
+  const lastMsg = state.messages[state.messages.length - 1];
 
-  if(messageData.type === 'message') { state.lastSender = messageData.id }
+  if (lastMsg && lastMsg.id === messageData.id) {
+    if (Array.isArray(lastMsg.message)) {
+      lastMsg.message.push(messageData.message)
+    } else {
+      lastMsg.message = [lastMsg.message, messageData.message];
+    }
+  } else {
+    state.messages.push(messageData)
+  }
 
-  state.messages.push(messageData)
-})
+  if (messageData.type === 'message') {
+    state.lastSender = messageData.id;
+  }
+
+  console.log(state.messages)
+});
+
 
 // socket.on("disconnect", () => {
 //   state.connected = false;
