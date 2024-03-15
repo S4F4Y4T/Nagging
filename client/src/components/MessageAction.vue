@@ -1,28 +1,67 @@
 <script setup>
 import ActionBtn from '@/components/MessageAction/MessageActionBtn.vue'
-import { ref } from 'vue'
-import { socket, state } from '@/services/socket.js'
+import {reactive, ref} from 'vue'
+import { socket, state, broadcastMessage } from '@/services/socket.js'
 
+let typingTimer
 const message = ref("")
+const typingUsers = reactive([])
+
+//handle typing user lists
+socket.on('typing', (username) => {
+  if (!typingUsers.includes(username)) {
+    typingUsers.push(username); // Add username to the array if not already present
+  }
+})
+//handle when user stop typing
+socket.on('stopTyping', (username) => {
+  const index = typingUsers.indexOf(username);
+  if (index !== -1) {
+    typingUsers.splice(index, 1); // Remove username from the array
+  }
+})
+//when user typing fire event to notify other user
+function userTyping()
+{
+  //stoptyping event hold when user again typing
+  clearTimeout(typingTimer)
+  socket.emit('typing', state.username)
+
+  //fire stop typing after 2sec of typing user event
+  typingTimer = setTimeout(() => {
+    socket.emit('stopTyping', state.username)
+  }, 2000)
+}
+//handle new message
 function messageSend()
 {
+  //validate if empty message
   if(message.value === "")
   {
-    alert('Cannot be empty')
+    alert('Message cannot be empty')
+    return
   }
 
-  socket.emit('message', {
+  const newMessage = {
     type: 'message',
     username: state.username,
     id: state.id,
-    message: message.value
-  })
+    message: [message.value]
+  }
 
+  //fire message event when user send a new message
+  socket.emit('message', newMessage)
+  //add to dom for the self message instead socket event
+  broadcastMessage(newMessage)
+
+  //reset input field and fire stop typing event
   message.value = ""
 }
 </script>
 
 <template>
+  <span v-if="typingUsers.length > 0" class="text-gray-300 font-bold my-1">{{ typingUsers.length > 2 ? "Several peoples are" : typingUsers.join(', ') + " is" }} typing...</span>
+
   <div class="border-t-2 border-gray-900 px-4 pt-4 mb-2 sm:mb-0 border-opacity-20">
     <form @submit.prevent="messageSend">
     <div class="relative flex bg-gray-700">
@@ -33,7 +72,7 @@ function messageSend()
                  </svg>
              </ActionBtn>
            </span>
-        <input v-model="message" type="text" placeholder="Write your message!" class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-10 bg-gray-200 rounded-md py-3">
+        <input v-model="message" @input="userTyping" type="text" placeholder="Write your message!" class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-10 bg-gray-200 rounded-md py-3">
         <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
   <!--        <ActionBtn>-->
   <!--          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6 text-gray-600">-->

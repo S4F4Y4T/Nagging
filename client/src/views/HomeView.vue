@@ -5,9 +5,10 @@
   import { onMounted } from 'vue'
   import {state} from '@/services/socket.js'
 
+  //take username input on page load
   onMounted(() => {
     do{
-      state.username = prompt('Give your username')
+      state.username = prompt('Please type your username here!')
 
     }while (state.username === null || state.username === '')
 

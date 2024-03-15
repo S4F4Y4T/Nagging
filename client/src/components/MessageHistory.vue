@@ -4,18 +4,21 @@ import {state} from '@/services/socket.js'
 
 const chatBox = ref(null)
 
+//call scroll to bottom function on load
 onMounted(() => {
   scrollToBottom()
 })
 
+//scroll to bottom
 const scrollToBottom = async () => {
+  //wait for the dom to load
   await nextTick()
 
   if (chatBox.value) {
     chatBox.value.scrollTop = chatBox.value.scrollHeight;
   }
 }
-
+//scroll to bottom on new message
 watch(state.messages, () => {
   scrollToBottom()
 })
@@ -24,34 +27,31 @@ watch(state.messages, () => {
 
 <template>
   <div ref="chatBox" id="messages" class="flex flex-col h-full space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
-
-    <template v-for="data in state.messages">
+<!--Show Message History Here-->
+    <template v-for="(data,index) in state.messages" :key="index">
+<!--      Notification Show Here-->
       <span v-if="data.type === 'notify'" class="text-gray-300 font-bold my-5 text-center">---{{ data.message }}---</span>
-
-      <div v-if="data.type === 'message' && data.id !== state.id" class="chat-message">
+<!--      Receiver Message show Here-->
+      <div v-if="data.type === 'message' && data.id !== state.id" class="receiver chat-message">
         <div class="flex items-end">
           <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
             <span class="text-gray-300  text-sm">{{ data.username }} </span>
 
-            <template v-if="Array.isArray(data.message)">
-              <template v-for="message in data.message">
-                <div><span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600">{{ message }}</span></div>
-              </template>
-            </template>
-            <template v-else>
-              <div><span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">{{ data.message }}</span></div>
+            <template v-for="(message, index) in data.message" :key="index">
+              <span :class="{'rounded-bl-none' : (index === data.message.length -1)}" class="px-4 break-all w-full py-2 rounded-lg inline-block bg-gray-300 text-gray-600">{{ message }}</span>
             </template>
 
           </div>
           <span class="text-white text-2xl p-2 font-bold border border-white rounded-full h-10 w-10 flex items-center justify-center">{{ data.username[0].toUpperCase() }}</span>
         </div>
       </div>
-
-      <div v-if="data.type === 'message' && data.id === state.id" class="chat-message">
+<!--      Sender Message show Here-->
+      <div v-if="data.type === 'message' && data.id === state.id" class="sender chat-message">
         <div class="flex items-end justify-end">
           <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-1 items-end">
-<!--            <div><span class="px-4 py-2 rounded-lg inline-block bg-blue-600 text-white ">Are you using sudo?</span></div>-->
-            <div><span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white ">{{ data.message }}</span></div>
+            <template v-for="(message, index) in data.message" :key="index">
+              <span :class="{'rounded-br-none' : (index === data.message.length -1)}" class="px-4 break-all py-2 rounded-lg inline-block bg-blue-600 text-white ">{{ message }}</span>
+            </template>
           </div>
         </div>
       </div>
@@ -59,8 +59,6 @@ watch(state.messages, () => {
     </template>
   </div>
 
-<!--  <span class="text-gray-300 font-bold my-1">Rohsin, Parvez, Someone and Safayat is typing...</span>-->
-  <span class="text-gray-300 font-bold my-1">Several People is typing...</span>
 </template>
 
 <style scoped>
