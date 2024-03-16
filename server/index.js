@@ -1,13 +1,18 @@
+const dotenv = require('dotenv')
+dotenv.config();
+
 const express = require('express')
 const http = require('http')
 const app = express();
 const server = http.createServer(app)
-const { Server } = require("socket.io");
+const { Server } = require("socket.io")
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173', // Replace with your Vue app's URL
+        origin: 'https://safay.at'
     },
 })
+
+console.log(process.env.CLIENT_URL)
 
 //declare default server port
 app.port = 3000

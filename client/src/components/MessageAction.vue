@@ -72,7 +72,7 @@ function messageSend()
                  </svg>
              </ActionBtn>
            </span>
-        <input v-model="message" @input="userTyping" type="text" placeholder="Write your message!" class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-10 bg-gray-200 rounded-md py-3">
+        <input x-webkit-speech v-model="message" @input="userTyping" type="text" placeholder="Write your message!" class="w-full focus:outline-none text-center focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-10 bg-gray-200 rounded-md py-3">
         <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
   <!--        <ActionBtn>-->
   <!--          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6 text-gray-600">-->

@@ -16,7 +16,7 @@
 </script>
 
 <template>
-  <section id="wrapper" class="w-3/6 mx-auto bg-gray-700">
+  <section id="wrapper" class="lg:w-3/6 md:5/6 sm:w-full mx-auto bg-gray-700">
     <div class="flex-1 p:2 sm:p-6 pt-0 !important justify-between flex flex-col h-screen">
       <Header />
       <MessageHistory />
